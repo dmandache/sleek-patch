@@ -13,18 +13,19 @@ import numpy as np
 import random
 
 
-def slic_patchify(image, patch_size=256, overlap=0, remove_background=False, annotation_mask=None):
+def slic_patchify(image, patch_size=256, overlap=0, scale=1, remove_background=False, annotation_mask=None):
     """
         Split image into patches (given patch size and overlap) using SLIC superpixel aglorithms,
         this method results in an adaptive grid.
     :param image: input image
-    :param patch_size: patch size
-    :param overlap: number of overlapping pixels
+    :param patch_size: int, patch size
+    :param overlap: int,  number of overlapping pixels (approximate)
+    :param scale: int, apply algo on downscaled image
     :param remove_background: boolean - if there is an annotation mask there's no need to remove background
     :param annotation_mask:  annotation mask ( 0 = background)
     :return: list of patches / list of dictionaries [{class, patches},{class, patches},...]
     """
-    scale = image.shape[0] // 1000
+    #scale = image.shape[0] // 1000
 
     if annotation_mask is not None:
         image = np.where(annotation_mask != 0, image, 0)
@@ -140,12 +141,10 @@ def draw_markers(markers_centers, patch_size, image, filename='markers.png', on_
                     continue
 
     imsave(filename, draw_rgb)
+    return draw_rgb
 
-#TODO
-def reconstruct_patches(centers, patches, image, filename='reconstructed_image.png', on_image=False, linewidth=10):
-    def get_rand_color():
-        return [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]
 
+def reconstruct_patches(centers, patches, image, filename='reconstructed_image.png', on_image=False):
     if on_image:
         pass
         # draw_rgb = np.stack((image,)*3, -1)
@@ -154,22 +153,17 @@ def reconstruct_patches(centers, patches, image, filename='reconstructed_image.p
 
     assert len(centers) == len(patches)
 
-    for i, point in enumerate(centers):
-        r, c = point
-        rcirc, ccirc = circle(r, c, radius=10)
-        rsqr, csqr = polygon_perimeter(
-            [r - patch_size // 2, r + patch_size // 2, r + patch_size // 2, r - patch_size // 2],
-            [c - patch_size // 2, c - patch_size // 2, c + patch_size // 2, c + patch_size // 2],
-            shape=draw_rgb.shape)
-        rand_color = get_rand_color()
-        draw_rgb[rcirc, ccirc] = rand_color
-        draw_rgb[rsqr, csqr] = rand_color
-        if linewidth != 0:
-            for i in range(linewidth // 2 + 1):
-                try:
-                    draw_rgb[rsqr - i, csqr - i] = rand_color
-                    draw_rgb[rsqr + i, csqr + i] = rand_color
-                except:
-                    continue
+    patch_size = patches[0].shape[0]
 
+    for i, center in enumerate(centers):
+        print(i, center)
+        r, c = center
+        r, c = int(r), int(c)
+        offset = patch_size // 2
+
+        x0, x1 = max(0, r - offset), min(image.shape[0], r + offset)
+        y0, y1 = max(0, c - offset), min(image.shape[1], c + offset)
+
+        draw_rgb[x0:x1, y0:y1] = patches[i]
     imsave(filename, draw_rgb)
+    return draw_rgb
