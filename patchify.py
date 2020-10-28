@@ -35,17 +35,17 @@ def slic_patchify(image, patch_size=256, overlap=0, remove_background=False, ann
         image_gray = image_gray
 
     patch_size_slic = patch_size - overlap
-    segments = get_slic_segments(image_gray, patch_size_slic=patch_size_slic, scale=scale,
+    segments = _get_slic_segments(image_gray, patch_size_slic=patch_size_slic, scale=scale,
                                  remove_background=remove_background, buffer_size=patch_size // scale)
-    centers = segments_to_centers(segments)
-    patches, centers = centers_to_patches(image, centers, patch_size=patch_size)
+    centers = _segments_to_centers(segments)
+    patches, centers = _centers_to_patches(image, centers, patch_size=patch_size)
 
     draw_markers(centers, patch_size, image_gray, filename='markers.png', on_image=True, linewidth=10)
 
     return patches, centers
 
 
-def get_slic_segments(image, patch_size_slic=256, scale=8, remove_background=False, buffer_size=0):
+def _get_slic_segments(image, patch_size_slic=256, scale=8, remove_background=False, buffer_size=0):
     # Compute number of segments according the desired "patch size"
     n_segments = image.shape[0] * image.shape[1] // (patch_size_slic ** 2)
 
@@ -93,14 +93,14 @@ def get_slic_segments(image, patch_size_slic=256, scale=8, remove_background=Fal
     return segments
 
 
-def segments_to_centers(segments):
+def _segments_to_centers(segments):
     # Patch centers
     markers_center = np.array(center_of_mass(segments, segments, np.unique(segments)))
     markers_center = markers_center[np.isfinite(markers_center).any(axis=1)]  # remove NaN and Inf
     return markers_center
 
 
-def centers_to_patches(image, centers, patch_size=256):
+def _centers_to_patches(image, centers, patch_size=256):
     topleft = np.array(centers, dtype=np.int64) - patch_size // 2
     patches = []
     new_centers = []
