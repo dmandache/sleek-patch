@@ -4,7 +4,7 @@ from skimage.util import img_as_float
 from skimage.transform import rescale, resize
 from skimage.io import imsave, imread
 from skimage import filters, color
-from skimage.draw import circle, disk, polygon_perimeter, polygon
+from skimage.draw import disk, polygon_perimeter, polygon
 
 from scipy.ndimage.measurements import center_of_mass
 from scipy.ndimage.morphology import binary_fill_holes, binary_closing
@@ -16,7 +16,16 @@ import numpy as np
 import random
 import os
 
-def patchify(image, patch_size=256, overlap=0):
+
+def patchify(image, patch_size=256, overlap=0, remove_background=False, background_is='dark'):
+    """
+    Regular Grid sampling
+
+    :param image:
+    :param patch_size:
+    :param overlap:
+    :return:
+    """
     img_h, img_w, _ = image.shape
 
 
@@ -50,12 +59,21 @@ def patchify(image, patch_size=256, overlap=0):
             centers.append([i+patch_size//2, j+patch_size//2])
             count += 1
 
-    return patches, centers   
+    if remove_background:
+        mean_patches = np.array([np.mean(p) for p in patches])
+        background_thresh = filters.threshold_otsu(mean_patches)
+        if background_is == 'dark':
+            fg_ids = np.argwhere(mean_patches <= background_thresh).flatten()
+        else:
+            fg_ids = np.argwhere(mean_patches < background_thresh).flatten()
+        return [patches[index] for index in fg_ids], [centers[index] for index in fg_ids]
+    else:
+        return patches, centers
 
 
-def slic_patchify(image, patch_size=256, overlap=0, scale=1, 
-                    multichannel=False, sigma=3, compactness=0.5, min_size_factor=0.1, max_size_factor=3, enforce_connectivity=True, slic_zero=False,
-                    remove_background=False, mask=None, logdir="./", debug=False):
+def slic_patchify(image, patch_size=256, overlap=0, scale=1, multichannel=False,
+                  sigma=3, compactness=0.5, min_size_factor=0.1, max_size_factor=3, enforce_connectivity=True, slic_zero=False,
+                  remove_background=False, background_is='dark', mask=None, logdir="./", debug=False):
     """
         Split image into patches (given patch size and overlap) using SLIC superpixel aglorithms,
         this method results in an adaptive grid.
@@ -64,6 +82,7 @@ def slic_patchify(image, patch_size=256, overlap=0, scale=1,
     :param overlap: int,  number of overlapping pixels (approximate)
     :param scale: int, apply algo on downscaled image
     :param remove_background: boolean - if there is an annotation mask there's no need to remove background
+    :param background_is: light(er) or dark(er)
     :param annotation_mask:  annotation mask ( 0 = background)
     :return: list of patches / list of dictionaries [{class, patches},{class, patches},...]
     :return: list of centers of the patches
@@ -72,13 +91,14 @@ def slic_patchify(image, patch_size=256, overlap=0, scale=1,
         image_gray = color.rgb2gray(image)
         image_gray = (image_gray*255).astype('uint8') # float to int
     else:
-        image_gray =  np.copy(image)
+        image_gray = np.copy(image)
     
     patch_size_slic = patch_size - overlap
     segments = _get_slic_segments(image_gray, 
                                   patch_size_slic=patch_size_slic, 
                                   scale=scale,
-                                  remove_background=remove_background, 
+                                  remove_background=remove_background,
+                                  background_is=background_is,
                                   mask=mask,
                                   multichannel=multichannel,
                                   sigma=sigma, 
@@ -93,13 +113,14 @@ def slic_patchify(image, patch_size=256, overlap=0, scale=1,
     centers = _segments_to_centers(segments)
     patches, centers = _centers_to_patches(image, centers, patch_size=patch_size)
 
-    draw_markers(centers, patch_size, image, filename=os.path.join(logdir,'markers.jpeg'), on_image=True, linewidth=20)
+    if debug:
+        draw_markers(centers, patch_size, image, filename=os.path.join(logdir, 'markers.jpg'), on_image=True, linewidth=20)
 
     return patches, centers
 
 
 def _get_slic_segments(image, patch_size_slic=256, scale=8, 
-                            remove_background=False, mask=None, buffer_size=0, debug=False,
+                            remove_background=False, background_is='dark', mask=None, buffer_size=0, debug=False,
                             multichannel=False, sigma=3, compactness=0.5, min_size_factor=0.2, max_size_factor=3, enforce_connectivity=True, slic_zero=False):
     # Compute number of segments according the desired "patch size"
     if mask is not None:
@@ -107,8 +128,8 @@ def _get_slic_segments(image, patch_size_slic=256, scale=8,
         # ch = convex_hull_object(rescale(mask, 1/scale))
         # ch = resize(ch, output_shape=(mask.shape[0], mask.shape[1]), order=0, preserve_range=True).astype('bool')
         # n_segments = (np.sum(ch) + np.sum(mask)) // 2 // (patch_size_slic ** 2)
-        
-        n_segments = int(1.2 * np.sum(mask) // (patch_size_slic ** 2))
+        alpha = 1 #1.2
+        n_segments = int(alpha * np.sum(mask) // (patch_size_slic ** 2))
         #n_segments += int(n_segments*0.15)
     else:
         n_segments = image.shape[0] * image.shape[1] // (patch_size_slic ** 2)
@@ -143,45 +164,60 @@ def _get_slic_segments(image, patch_size_slic=256, scale=8,
     print(segments_small.shape)
 
     if remove_background and mask is None:
-        segments_small += 1 # keep label 0 for background
-        
-        # Compute mean intensity of superpixels
-        mean_segments_small = np.zeros_like(image_small)
-        for (i, label) in enumerate(np.unique(segments_small)):
-            superpix = image_small[segments_small == label]
-            #mask = remove_background[segments_small == label]
-            
-            mean_intensity = np.mean(superpix) #np.quantile(superpix, 0.9)
-            
-            #mean_intensity = entropy(superpix) * np.mean(superpix)
-            mean_segments_small[segments_small == label] = mean_intensity
-        if debug:
-            imsave('segments_mean_intensity.jpeg', mean_segments_small)
-            
-        mean_segments_small = np.nan_to_num(mean_segments_small, nan=0)        
-        print(mean_segments_small.dtype, mean_segments_small.min(), mean_segments_small.max())
-        
-        # TODO keep entire superpixel when masking (don't cut labels)
-        # Background removal
-        background_thresh = filters.threshold_isodata(mean_segments_small)
-        #background_thresh = np.quantile(mean_segments_small, 0.1)
-        print("background thresh = ", background_thresh)
-
-        background_mask = np.zeros_like(segments_small)
-        background_mask[mean_segments_small > background_thresh] = 1
-        background_mask = binary_fill_holes(background_mask)
-        background_mask = remove_small_objects(background_mask,200)
-        # background_mask = ndimage.morphology.binary_opening(background_mask, structure=np.ones((10, 10)))
-        segments_small[background_mask == 0] = 0
-        
-        if debug:
-            imsave('mask.jpeg', img_as_uint(background_mask))
-            mean_segments_small[background_mask == 0] = 0
-            imsave('segments_mean_intensity_masked.jpeg', mean_segments_small)
+        segments_small = _remove_background_segments(image_small, segments_small, background_is=background_is, debug=debug)
 
     # Upscale segments image
     segments = resize(segments_small, output_shape=(image.shape[0], image.shape[1]), order=0, preserve_range=True)
     
+    return segments
+
+
+def _remove_background_segments(image, segments, background_is='dark', debug=False):
+    segments += 1  # keep label 0 for background
+
+    # Compute mean intensity of superpixels
+    mean_segments = np.zeros_like(image)
+    for (i, label) in enumerate(np.unique(segments)):
+        superpix = image[segments == label]
+        # mask = remove_background[segments == label]
+        mean_intensity = np.mean(superpix)  # np.quantile(superpix, 0.9)
+
+        # mean_intensity = entropy(superpix) * np.mean(superpix)
+        mean_segments[segments == label] = mean_intensity
+    if debug:
+        imsave('segments_mean_intensity.jpg', mean_segments)
+
+    mean_segments = np.nan_to_num(mean_segments, nan=0)
+    print(mean_segments.dtype, mean_segments.min(), mean_segments.max())
+
+    # TODO keep entire superpixel when masking (don't cut labels)
+    # Background removal
+    # isodata
+    background_thresh = filters.threshold_isodata(mean_segments)
+    # otsu
+    background_thresh = filters.threshold_otsu(mean_segments)
+    # quantile thresh
+    # if background_is == 'dark':
+    #     background_thresh = np.quantile(mean_segments, 0.1)
+    # else:
+    #     background_thresh = np.quantile(mean_segments, 0.9)
+    print("background thresh = ", background_thresh)
+
+    background_mask = np.zeros_like(segments)
+    if background_is == 'dark':
+        background_mask[mean_segments > background_thresh] = 1
+    else:
+        background_mask[mean_segments <= background_thresh] = 1
+    background_mask = binary_fill_holes(background_mask)
+    background_mask = remove_small_objects(background_mask, 200)
+    # background_mask = ndimage.morphology.binary_opening(background_mask, structure=np.ones((10, 10)))
+    segments[background_mask == 0] = 0
+
+    if debug:
+        imsave('mask.jpg', img_as_uint(background_mask))
+        mean_segments[background_mask == 0] = 0
+        imsave('segments_mean_intensity_masked.jpg', mean_segments)
+
     return segments
 
 
@@ -224,7 +260,7 @@ def _centers_to_patches(image, centers, patch_size=256):
     return patches, new_centers
 
 
-def draw_markers(markers_centers, patch_size, image, filename='markers.jpeg', on_image=False, linewidth=12, color=None):
+def draw_markers(markers_centers, patch_size, image, filename='markers.jpg', on_image=False, linewidth=12, color=None):
     def get_rand_color():
         return [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]
 
@@ -257,7 +293,7 @@ def draw_markers(markers_centers, patch_size, image, filename='markers.jpeg', on
     return draw_rgb
 
 
-def reconstruct_patches(centers, patches, image, filename='reconstructed_image.jpeg', on_image=False):
+def reconstruct_patches(centers, patches, image, filename='reconstructed_image.jpg', on_image=False):
 
     draw_rgb = _get_canvas(image, on_image)
 
@@ -278,6 +314,7 @@ def reconstruct_patches(centers, patches, image, filename='reconstructed_image.j
     if True:
         imsave(filename, draw_rgb)
     return draw_rgb
+
 
 def _get_canvas(image, on_image=False):
     if on_image:
