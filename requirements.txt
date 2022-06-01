@@ -2,3 +2,4 @@ numpy
 random
 scipy
 skimage
+jupyter
