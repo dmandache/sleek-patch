@@ -3,7 +3,8 @@ from skimage.segmentation import slic, mark_boundaries, clear_border
 from skimage.util import img_as_float
 from skimage.transform import rescale, resize
 from skimage.io import imsave, imread
-from skimage import filters, color
+from skimage.color import rgb2gray
+from skimage import filters
 from skimage.draw import disk, polygon_perimeter, polygon
 
 from scipy.ndimage.measurements import center_of_mass
@@ -16,14 +17,26 @@ import numpy as np
 import random
 import os
 
+Q = 0.1         # q-th for quantile background removal threshold
 
-def patchify(image, patch_size=256, overlap=0, remove_background=False, background_is='dark'):
+BACKGROUND_REMOVAL_FUNCTION = {
+    'isodata':  filters.threshold_isodata,
+    'otsu':     filters.threshold_otsu,
+    'li':       filters.threshold_li,
+    'yen':      filters.threshold_yen,
+    'triangle': filters.threshold_triangle,
+}
+
+
+def patchify(image, patch_size=256, overlap=0, remove_background=False, background_removal_strategy='isodata', background_is='dark'):
     """
     Regular Grid sampling
 
     :param image:
     :param patch_size:
     :param overlap:
+    :param remove_background:
+    :param background_is:
     :return:
     """
     img_h, img_w, _ = image.shape
@@ -61,7 +74,7 @@ def patchify(image, patch_size=256, overlap=0, remove_background=False, backgrou
 
     if remove_background:
         mean_patches = np.array([np.mean(p) for p in patches])
-        background_thresh = filters.threshold_otsu(mean_patches)
+        background_thresh = BACKGROUND_REMOVAL_FUNCTION[background_removal_strategy](mean_patches)
         if background_is == 'dark':
             fg_ids = np.argwhere(mean_patches <= background_thresh).flatten()
         else:
@@ -73,7 +86,8 @@ def patchify(image, patch_size=256, overlap=0, remove_background=False, backgrou
 
 def slic_patchify(image, patch_size=256, overlap=0, scale=1, multichannel=False,
                   sigma=3, compactness=0.5, min_size_factor=0.1, max_size_factor=3, enforce_connectivity=True, slic_zero=False,
-                  remove_background=False, background_is='dark', mask=None, logdir="./", debug=False):
+                  remove_background=False, background_removal_strategy='isodata', background_is='dark',
+                  mask=None, logdir="./", debug=False):
     """
         Split image into patches (given patch size and overlap) using SLIC superpixel aglorithms,
         this method results in an adaptive grid.
@@ -84,11 +98,12 @@ def slic_patchify(image, patch_size=256, overlap=0, scale=1, multichannel=False,
     :param remove_background: boolean - if there is an annotation mask there's no need to remove background
     :param background_is: light(er) or dark(er)
     :param annotation_mask:  annotation mask ( 0 = background)
+
     :return: list of patches / list of dictionaries [{class, patches},{class, patches},...]
     :return: list of centers of the patches
     """
     if image.ndim > 2 and multichannel is False:
-        image_gray = color.rgb2gray(image)
+        image_gray = rgb2gray(image)
         image_gray = (image_gray*255).astype('uint8') # float to int
     else:
         image_gray = np.copy(image)
@@ -98,6 +113,7 @@ def slic_patchify(image, patch_size=256, overlap=0, scale=1, multichannel=False,
                                   patch_size_slic=patch_size_slic, 
                                   scale=scale,
                                   remove_background=remove_background,
+                                  background_removal_strategy=background_removal_strategy,
                                   background_is=background_is,
                                   mask=mask,
                                   multichannel=multichannel,
@@ -120,8 +136,9 @@ def slic_patchify(image, patch_size=256, overlap=0, scale=1, multichannel=False,
 
 
 def _get_slic_segments(image, patch_size_slic=256, scale=8, 
-                            remove_background=False, background_is='dark', mask=None, buffer_size=0, debug=False,
-                            multichannel=False, sigma=3, compactness=0.5, min_size_factor=0.2, max_size_factor=3, enforce_connectivity=True, slic_zero=False):
+                            remove_background=False, background_removal_strategy='isodata', background_is='dark', mask=None, buffer_size=0, debug=False,
+                            multichannel=False, sigma=3, compactness=0.5, min_size_factor=0.2, max_size_factor=3,
+                            enforce_connectivity=True, slic_zero=False):
     # Compute number of segments according the desired "patch size"
     if mask is not None:
         # calcualte n of segmetns on the convex hull of mask
@@ -164,7 +181,9 @@ def _get_slic_segments(image, patch_size_slic=256, scale=8,
     print(segments_small.shape)
 
     if remove_background and mask is None:
-        segments_small = _remove_background_segments(image_small, segments_small, background_is=background_is, debug=debug)
+        segments_small = _remove_background_segments(image_small, segments_small,
+                                                     background_removal_strategy=background_removal_strategy, background_is=background_is,
+                                                     debug=debug)
 
     # Upscale segments image
     segments = resize(segments_small, output_shape=(image.shape[0], image.shape[1]), order=0, preserve_range=True)
@@ -172,7 +191,7 @@ def _get_slic_segments(image, patch_size_slic=256, scale=8,
     return segments
 
 
-def _remove_background_segments(image, segments, background_is='dark', debug=False):
+def _remove_background_segments(image, segments, background_removal_strategy='isodata', background_is='dark', debug=False):
     segments += 1  # keep label 0 for background
 
     # Compute mean intensity of superpixels
@@ -192,15 +211,13 @@ def _remove_background_segments(image, segments, background_is='dark', debug=Fal
 
     # TODO keep entire superpixel when masking (don't cut labels)
     # Background removal
-    # isodata
-    background_thresh = filters.threshold_isodata(mean_segments)
-    # otsu
-    background_thresh = filters.threshold_otsu(mean_segments)
-    # quantile thresh
-    # if background_is == 'dark':
-    #     background_thresh = np.quantile(mean_segments, 0.1)
-    # else:
-    #     background_thresh = np.quantile(mean_segments, 0.9)
+    if background_removal_strategy == 'quantile':
+        if background_is == 'dark':
+            background_thresh = np.quantile(mean_segments, Q)
+        else:
+            background_thresh = np.quantile(mean_segments, 1-Q)
+    else:
+        background_thresh = BACKGROUND_REMOVAL_FUNCTION[background_removal_strategy](mean_segments)
     print("background thresh = ", background_thresh)
 
     background_mask = np.zeros_like(segments)
@@ -261,6 +278,17 @@ def _centers_to_patches(image, centers, patch_size=256):
 
 
 def draw_markers(markers_centers, patch_size, image, filename='markers.jpg', on_image=False, linewidth=12, color=None):
+    """
+
+    :param markers_centers:
+    :param patch_size:
+    :param image:
+    :param filename:
+    :param on_image:
+    :param linewidth:
+    :param color:
+    :return:
+    """
     def get_rand_color():
         return [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]
 

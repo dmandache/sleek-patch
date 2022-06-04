@@ -2,9 +2,9 @@
 ## Optimally patchify your images using the SLIC superpixel algorithm - simply sleek !
 
 ## Motivation
-big images
-content aware sampling
-reduce number of patches and improve their quality
+- big images context
+- content aware sampling: du not split up homogenous textures in the image
+- reduce number of patches and improve their quality
 
 ## Method
 
@@ -12,7 +12,15 @@ slic clustering
 
 ## Parameters
 
+- `patch_size`
+- `overlap` : note that while this value is exact for the regular grid sampling given as baseline, for the Sleek method the overlap value is approximative
+- `background_removal_strategy`: thresholding strategy applied on the mean intensity of the obtained pixel clusters, accepted values: *isodata, otsu, li, yen, triangle, quantile*
+
 ## Example
+
+Example image comes from The Early **B**reast **C**ancer Core-**N**eedle **B**iopsy WSI (BCNB) Dataset, freely available at <https://bupt-ai-cz.github.io/BCNB/> and the foreground mask is produced by the author using [Icy Platform](https://icy.bioimageanalysis.org/).
+
+WSI of size 14208 x 18080 pixels, sampled with patches of size 2048 x 2048 with an overlap of 256 pixels, the Sleek method is applied on the greyscale transformed image down-scaled with a factor of 10  
 
 <table>
   <tr>
