@@ -28,7 +28,7 @@ BACKGROUND_REMOVAL_FUNCTION = {
 }
 
 
-def patchify(image, patch_size=256, overlap=0, remove_background=False, background_removal_strategy='isodata', background_is='dark'):
+def grid_patchify(image, patch_size=256, overlap=0, remove_background=False, background_removal_strategy='isodata', background_is='dark'):
     """
     Regular Grid sampling
 
@@ -84,7 +84,7 @@ def patchify(image, patch_size=256, overlap=0, remove_background=False, backgrou
         return patches, centers
 
 
-def slic_patchify(image, patch_size=256, overlap=0, scale=1, multichannel=False,
+def sleek_patchify(image, patch_size=256, overlap=0, scale=1, multichannel=False,
                   sigma=3, compactness=0.5, min_size_factor=0.1, max_size_factor=3, enforce_connectivity=True, slic_zero=False,
                   remove_background=False, background_removal_strategy='isodata', background_is='dark',
                   mask=None, logdir="./", debug=False):
