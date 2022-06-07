@@ -10,11 +10,15 @@
 
 slic clustering 
 
-## Parameters
-
+## Functions & Parameters
+`sleek_patchify`
 - `patch_size`
 - `overlap` : note that while this value is exact for the regular grid sampling given as baseline, for the Sleek method the overlap value is approximative
 - `background_removal_strategy`: thresholding strategy applied on the mean intensity of the obtained pixel clusters, accepted values: *isodata, otsu, li, yen, triangle, quantile*
+
+`grid_patchify` regular grid sampling as baseline
+
+`draw_markers` draws sampled patches
 
 ## Example
 
