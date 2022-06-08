@@ -57,7 +57,7 @@ Example image comes from The Early **B**reast **C**ancer Core-**N**eedle **B**io
 
 WSI of size 14208 x 18080 pixels, sampled with patches of size 2048 x 2048 with an overlap of 256 pixels, the Sleek method is applied on the greyscale transformed image down-scaled with a factor of 10  
 
-<table class="center">
+<table>
   <tr>
         <td>Image</td>
         <td>Mask</td>
@@ -68,15 +68,15 @@ WSI of size 14208 x 18080 pixels, sampled with patches of size 2048 x 2048 with 
   </tr>
  </table>
 
-<table class="center">
+<table>
   <tr>
         <td>Regular Grid Sampling</td>
         <td>Sleek Patchification</td>
         <td>Masked Sleek Patchification</td>
   </tr>
   <tr>
-        <td><img src="demo/280_regular_grid_markers.jpg" width="352" /></td>
-        <td><img src="demo/280_sleek_markers.jpg" width="352" /></td>
-        <td><img src="demo/280_masked_sleek_markers.jpg" width="352" /></td>
+        <td><img src="demo/280_regular_grid_markers.jpg" width="320" /></td>
+        <td><img src="demo/280_sleek_markers.jpg" width="320" /></td>
+        <td><img src="demo/280_masked_sleek_markers.jpg" width="320" /></td>
   </tr>
  </table>
