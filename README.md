@@ -75,8 +75,8 @@ WSI of size 14208 x 18080 pixels, sampled with patches of size 2048 x 2048 with 
         <td>Masked Sleek Patchification</td>
   </tr>
   <tr>
-        <td><img src="demo/280_regular_grid_markers.jpg" width="300" /></td>
-        <td><img src="demo/280_sleek_markers.jpg" width="300" /></td>
-        <td><img src="demo/280_masked_sleek_markers.jpg" width="300" /></td>
+        <td><img src="demo/280_regular_grid_markers.jpg" width="352" /></td>
+        <td><img src="demo/280_sleek_markers.jpg" width="352" /></td>
+        <td><img src="demo/280_masked_sleek_markers.jpg" width="352" /></td>
   </tr>
  </table>
