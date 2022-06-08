@@ -1,24 +1,29 @@
 # sleek-patch
 ## Optimally patchify your images using the SLIC superpixel algorithm - simply sleek !
 
-## Motivation
-- big images context
-- content aware sampling: du not split up homogenous textures in the image
-- reduce number of patches and improve their quality
+## What
 
-## Method
+The method consists of an image processing pipeline leading to the sampling of a bigger image into tiles, by taking into account the textures of said tiles, with the purpose of obtaining an optimal, conent-aware split, without "cutting up" homogenous structures.
 
-slic clustering 
+## Why 
+
+The method has been developed in the big data / deep learning context out of the need of sampling gigapixel medical images into minimally overlapping homogenous sub-parts for training a multiple instance learning model based on convultional neural networks, however, it has the potential of broader use.
+
+## How
+
+The method strongly relies on the SLIC superpixel segmentation algorithm implemented in Scikit-Image [skimage.segmentation.slic](https://scikit-image.org/docs/dev/api/skimage.segmentation.html#skimage.segmentation.slic)
 
 ## Functions & Parameters
+
+### Core Method Function
 `sleek_patchify`
 - `patch_size`
 - `overlap` : note that while this value is exact for the regular grid sampling given as baseline, for the Sleek method the overlap value is approximative
 - `background_removal_strategy`: thresholding strategy applied on the mean intensity of the obtained pixel clusters, accepted values: *isodata, otsu, li, yen, triangle, quantile*
 
-`grid_patchify` regular grid sampling as baseline
+### Baseline Function `grid_patchify` regular grid sampling as baseline
 
-`draw_markers` draws sampled patches
+### Visualization Function `draw_markers` draws sampled patches over the image
 
 ## Example
 
