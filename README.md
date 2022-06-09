@@ -1,4 +1,4 @@
-# *S*ample *O*ptimally with *SLIC* - So Sleek !
+# _S_ample _O_ptimally with _SLIC_ - So Sleek !
 
 ## 1 - What
 
