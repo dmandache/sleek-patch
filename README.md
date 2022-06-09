@@ -42,14 +42,14 @@ image -> convert to grayscale -> downscale -> Gaussian blur -> segment into supe
 - list of extracted patches
 - list of coordinates for the centers of the patches inside the image
 
-### b) Baseline Sampling Function
-`grid_patchify` regular grid sampling with the same background removal stretegy as above
+### b) Baseline Sampling Function `grid_patchify`
+regular grid sampling with the same background removal stretegy as above
 
-### c) Reconstruction Function
-`reconstruct_patches` reconstruct the image from the sampled patches and their position
+### c) Reconstruction Function `reconstruct_patches`
+reconstruct the image from the sampled patches and their position
 
-### d) Visualization Function
-`draw_markers` draws sampled patches over the image
+### d) Visualization Function `draw_markers` 
+draws sampled patches over the image
 
 ## 5 - Example
 
