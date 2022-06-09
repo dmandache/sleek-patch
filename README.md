@@ -12,7 +12,7 @@ The method has been developed in the big data / deep learning context out of the
 
 The method strongly relies on the SLIC superpixel segmentation algorithm implemented in Scikit-Image [skimage.segmentation.slic](https://scikit-image.org/docs/dev/api/skimage.segmentation.html#skimage.segmentation.slic)
 
-image -> convert to grayscale -> downscale -> Gaussian blur -> segment into superpixels -> filter out background superpixels -> extract superpixels centers of mass -> define corresponding patches
+Pipeline: image -> convert to grayscale -> downscale -> Gaussian blur -> estimate number of superpixels -> segment into superpixels -> filter out background superpixels -> extract centers of mass from superpixels -> define corresponding patches 
 
 
 ## 4 - Functions & Parameters
