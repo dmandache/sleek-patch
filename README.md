@@ -69,7 +69,7 @@ WSI of size 14208 x 18080 pixels, sampled with patches of size 2048 x 2048 with 
         <td><img src="demo/280_mask.jpg" width="256" /></td> 
   </tr>
  </table>
-
+ 
 <table>
   <tr>
         <td>Regular Grid Sampling</td>
@@ -82,3 +82,15 @@ WSI of size 14208 x 18080 pixels, sampled with patches of size 2048 x 2048 with 
         <td><img src="demo/280_masked_sleek_markers.jpg" width="320" /></td>
   </tr>
  </table>
+
+ ## Inslallation
+ 
+ - download repository
+ - `pip install -e /path/to/mypackage`
+ 
+ ## Usage
+ 
+ -`import sleek`
+ -load `image` 
+ - `patches, centers = sleek.sleek_patchification(image, ...)`
+ For more details see `demo.ipynb`
