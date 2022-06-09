@@ -86,11 +86,12 @@ WSI of size 14208 x 18080 pixels, sampled with patches of size 2048 x 2048 with 
  ## Inslallation
  
  - download repository
- - `pip install -e /path/to/mypackage`
+ - `pip install -e /path/to/repository`
  
  ## Usage
  
- -`import sleek`
- -load `image` 
+ - `import sleek`
+ - load `image` 
  - `patches, centers = sleek.sleek_patchification(image, ...)`
- For more details see `demo.ipynb`
+ 
+ For more details see `demo.ipynb`.
