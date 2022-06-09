@@ -153,7 +153,7 @@ def _get_slic_segments(image, patch_size_slic=256, scale=8,
         
     # Downscale image
     image_small = rescale(image, scale=1 / scale, multichannel=multichannel)
-    
+
     # Downscale mask
     if mask is not None:
         mask = rescale(mask, scale=1 / scale) 
@@ -171,9 +171,9 @@ def _get_slic_segments(image, patch_size_slic=256, scale=8,
 
     # Run SLIC
     segments_small = slic(img_as_float(image_small), mask=mask, 
-                          min_size_factor=min_size_factor, max_size_factor=max_size_factor, max_iter=10,
+                          min_size_factor=min_size_factor, max_size_factor=max_size_factor, max_iter=30,
                           n_segments=n_segments, multichannel=multichannel, slic_zero=slic_zero,
-                          sigma=sigma, compactness=compactness, enforce_connectivity=True) 
+                          sigma=sigma, compactness=compactness, enforce_connectivity=enforce_connectivity)
     # segments_small = clear_border(segments_small, buffer_size=buffer_size)
 
     if debug:
@@ -182,7 +182,8 @@ def _get_slic_segments(image, patch_size_slic=256, scale=8,
 
     if remove_background and mask is None:
         segments_small = _remove_background_segments(image_small, segments_small,
-                                                     background_removal_strategy=background_removal_strategy, background_is=background_is,
+                                                     background_removal_strategy=background_removal_strategy,
+                                                     background_is=background_is,
                                                      debug=debug)
 
     # Upscale segments image
@@ -207,7 +208,7 @@ def _remove_background_segments(image, segments, background_removal_strategy='is
         imsave('segments_mean_intensity.jpg', mean_segments)
 
     mean_segments = np.nan_to_num(mean_segments, nan=0)
-    print(mean_segments.dtype, mean_segments.min(), mean_segments.max())
+    #print(mean_segments.dtype, mean_segments.min(), mean_segments.max())
 
     # TODO keep entire superpixel when masking (don't cut labels)
     # Background removal
