@@ -1,5 +1,5 @@
 # sleek-patch
-## Optimally patchify your images using the SLIC superpixel algorithm - simply sleek !
+## Optimally patchify your images using the SLIC superpixel algorithm - so sleek !
 
 ## 1 - What
 
