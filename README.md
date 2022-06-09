@@ -1,25 +1,24 @@
 # sleek-patch
 ## Optimally patchify your images using the SLIC superpixel algorithm - simply sleek !
 
-## What
+## 1 - What
 
 The method consists of an image processing pipeline leading to the sampling of a bigger image into tiles, by taking into account the textures of said tiles, with the purpose of obtaining an optimal, conent-aware split, without "cutting up" homogenous structures.
 
-## Why 
+## 2 - Why 
 
 The method has been developed in the big data / deep learning context out of the need of sampling gigapixel medical images into minimally overlapping homogenous sub-parts for training a multiple instance learning model based on convultional neural networks, however, it has the potential of broader use.
 
-## How
+## 3 - How
 
 The method strongly relies on the SLIC superpixel segmentation algorithm implemented in Scikit-Image [skimage.segmentation.slic](https://scikit-image.org/docs/dev/api/skimage.segmentation.html#skimage.segmentation.slic)
 
 image -> convert to grayscale -> downscale -> Gaussian blur -> segment into superpixels -> filter out background superpixels -> extract superpixels centers of mass -> define corresponding patches
 
 
+## 4 - Functions & Parameters
 
-## Functions & Parameters
-
-### Core Sampling Function: `sleek_patchify`
+### Core Sampling Function `sleek_patchify`
 #### Parameters
 - `image` 
 - `patch_size`
@@ -52,7 +51,7 @@ image -> convert to grayscale -> downscale -> Gaussian blur -> segment into supe
 ### Visualization Function
 `draw_markers` draws sampled patches over the image
 
-## Example
+## 5 - Example
 
 Example image comes from The Early **B**reast **C**ancer Core-**N**eedle **B**iopsy WSI (BCNB) Dataset, freely available at <https://bupt-ai-cz.github.io/BCNB/> and the foreground mask is produced by the author using [Icy Platform](https://icy.bioimageanalysis.org/).
 
@@ -82,12 +81,12 @@ WSI of size 14208 x 18080 pixels, sampled with patches of size 2048 x 2048 with 
   </tr>
  </table>
 
- ## Inslallation
+ ## 6 - Installation
  
  - download repository
  - `pip install -e /path/to/repository`
  
- ## Usage
+ ## 7 - Usage
  
  - `import sleek`
  - load `image` 
