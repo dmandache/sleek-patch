@@ -26,21 +26,22 @@ image -> convert to grayscale -> downscale -> Gaussian blur -> segment into supe
 - `overlap` : note that while this value is exact for the regular grid sampling given as baseline, for the Sleek method the overlap value is approximative
 - `scale` : integer, downscaling factor for speeding up the execution
 SLIC (see [skimage.segmentation.slic](https://scikit-image.org/docs/dev/api/skimage.segmentation.html#skimage.segmentation.slic) for more details)
-- `multichannel` : boolean flag, if *False* converting the image to grayscale
-- `sigma` : wdth of Gaussian smoothing kernel for pre-processing 
-- `compactness`: balances color proximity and space proximity (higher values give more weight to space proximity, making superpixel shapes more square)
-- `min_size_factor` : proportion of the minimum superpixel size to be removed with respect to the supposed initial square size
-- `max_size_factor` : proportion of the maximum connected superpixel size
-- `enforce_connectivity`=True
-- `slic_zero`, boolean flag, if *True* runs the zero-parameter mode of SLIC
-- `mask`: boolean 2D array given as mask for area of interest to patchify
+  - `multichannel` : boolean flag, if *False* converting the image to grayscale
+  - `sigma` : wdth of Gaussian smoothing kernel for pre-processing 
+  - `compactness`: balances color proximity and space proximity (higher values give more weight to space proximity, making superpixel shapes more square)
+  - `min_size_factor` : proportion of the minimum superpixel size to be removed with respect to the supposed initial square size
+  - `max_size_factor` : proportion of the maximum connected superpixel size
+  - `enforce_connectivity`=True
+  - `slic_zero`, boolean flag, if *True* runs the zero-parameter mode of SLIC
+  - `mask`: boolean 2D array given as mask for area of interest to patchify
 Background removal
-- `remove_background`: boolean flag, should be *False* if a mask is already provided
-- `background_removal_strategy`: thresholding strategy applied on the mean intensity of the obtained pixel clusters, accepted values: *isodata, otsu, li, yen, triangle, quantile*
-- `background_is`: specify if the background is lighter or darker than the foregroud, accepted values: *light, dark*
+  - `remove_background`: boolean flag, should be *False* if a mask is already provided
+  - `background_removal_strategy`: thresholding strategy applied on the mean intensity of the obtained pixel clusters, accepted values: *isodata, otsu, li, yen, triangle, quantile*
+  - `background_is`: specify if the background is lighter or darker than the foregroud, accepted values: *light, dark*
 Saving intermediary steps
-- `debug` : boolean flag, if *True* saves images of the intermediary steps, like the result of the SLIC algrithm, background mask, etc.
-- `logdir` : path to the directory where to save the debugging files
+  - `debug` : boolean flag, if *True* saves images of the intermediary steps, like the result of the SLIC algrithm, background mask, etc.
+  - `logdir` : path to the directory where to save the debugging files
+  - 
 #### Returns
 - list of extracted patches
 - list of coordinates for the centers of the patches inside the image
