@@ -19,7 +19,7 @@ image -> convert to grayscale -> downscale -> Gaussian blur -> segment into supe
 
 ## Functions & Parameters
 
-### Core Method Function: `sleek_patchify`
+### Core Sampling Function: `sleek_patchify`
 #### Parameters
 - `image` : 
 - `patch_size`
@@ -45,8 +45,11 @@ Saving intermediary steps
 - list of extracted patches
 - list of coordinates for the centers of the patches inside the image
 
-### Baseline Function
-`grid_patchify` regular grid sampling
+### Baseline Sampling Function
+`grid_patchify` regular grid sampling with the same background removal stretegy as above
+
+### Reconstruction Function
+`reconstruct_patches` reconstruct the image from the sampled patches and their position
 
 ### Visualization Function
 `draw_markers` draws sampled patches over the image
