@@ -31,7 +31,6 @@ image -> convert to grayscale -> downscale -> Gaussian blur -> segment into supe
   - `compactness`: balances color proximity and space proximity (higher values give more weight to space proximity, making superpixel shapes more square)
   - `min_size_factor` : proportion of the minimum superpixel size to be removed with respect to the supposed initial square size
   - `max_size_factor` : proportion of the maximum connected superpixel size
-  - `enforce_connectivity`=True
   - `slic_zero`, boolean flag, if *True* runs the zero-parameter mode of SLIC
   - `mask`: boolean 2D array given as mask for area of interest to patchify
 ##### for background removal
