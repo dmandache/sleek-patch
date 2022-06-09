@@ -76,9 +76,9 @@ def grid_patchify(image, patch_size=256, overlap=0, remove_background=False, bac
         mean_patches = np.array([np.mean(p) for p in patches])
         background_thresh = BACKGROUND_REMOVAL_FUNCTION[background_removal_strategy](mean_patches)
         if background_is == 'dark':
-            fg_ids = np.argwhere(mean_patches <= background_thresh).flatten()
+            fg_ids = np.argwhere(mean_patches >= background_thresh).flatten()
         else:
-            fg_ids = np.argwhere(mean_patches < background_thresh).flatten()
+            fg_ids = np.argwhere(mean_patches > background_thresh).flatten()
         return [patches[index] for index in fg_ids], [centers[index] for index in fg_ids]
     else:
         return patches, centers
