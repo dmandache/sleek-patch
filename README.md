@@ -94,4 +94,4 @@ WSI of size 14208 x 18080 pixels, sampled with patches of size 2048 x 2048 with 
  - load `image` 
  - `patches, centers = sleek.sleek_patchification(image, ...)`
  
- For more details see `demo.ipynb`.
+ For more details see [`demo`](sleek-patch/demo/demo.ipynb).
