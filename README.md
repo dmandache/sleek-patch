@@ -26,7 +26,6 @@ image -> convert to grayscale -> downscale -> Gaussian blur -> segment into supe
 - `overlap` : note that while this value is exact for the regular grid sampling given as baseline, for the Sleek method the overlap value is approximative
 - `scale` : integer, downscaling factor for speeding up the execution
 ##### from SLIC (see [skimage.segmentation.slic](https://scikit-image.org/docs/dev/api/skimage.segmentation.html#skimage.segmentation.slic) for more details)
-  - `multichannel` : boolean flag, if *False* converting the image to grayscale
   - `sigma` : wdth of Gaussian smoothing kernel for pre-processing 
   - `compactness`: balances color proximity and space proximity (higher values give more weight to space proximity, making superpixel shapes more square)
   - `min_size_factor` : proportion of the minimum superpixel size to be removed with respect to the supposed initial square size
