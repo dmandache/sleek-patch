@@ -8,7 +8,7 @@ The method consists of an image processing pipeline leading to the sampling of a
 
 The method has been developed in the big data / deep learning context out of the need of sampling gigapixel medical images into minimally overlapping homogenous sub-parts for training a multiple instance learning model based on convultional neural networks, however, it has the potential of broader use.
 
-Use case here: D. Mandache, E. B. à La Guillaume, Y. Badachi, J. . -C. Olivo-Marin and V. Meas-Yedid, "The Lifecycle of a Neural Network in the Wild: A Multiple Instance Learning Study on Cancer Detection from Breast Biopsies Imaged with Novel Technique," 2022 IEEE International Conference on Image Processing (ICIP), 2022, pp. 3601-3605, doi: 10.1109/ICIP46576.2022.9897596.
+Use case here: D. Mandache, E. B. à La Guillaume, Y. Badachi, J-C. Olivo-Marin and V. Meas-Yedid, *The Lifecycle of a Neural Network in the Wild: A Multiple Instance Learning Study on Cancer Detection from Breast Biopsies Imaged with Novel Technique*, 2022 IEEE International Conference on Image Processing (ICIP), 2022, pp. 3601-3605, doi: [10.1109/ICIP46576.2022.9897596](https://ieeexplore.ieee.org/abstract/document/9897596).
 
 ## 3 - How
 
