@@ -21,8 +21,8 @@ Pipeline: image -> convert to grayscale -> downscale -> Gaussian blur -> estimat
 
 ### a) Core Sampling Function `sleek_patchify`
 #### Parameters
-- `image` 
-- `patch_size`
+- `image` : input image to subsample
+- `patch_size` : size of resulting patches
 - `overlap` : note that while this value is exact for the regular grid sampling given as baseline, for the Sleek method the overlap value is approximative
 - `scale` : integer, downscaling factor for speeding up the execution
 ##### from SLIC (see [skimage.segmentation.slic](https://scikit-image.org/docs/dev/api/skimage.segmentation.html#skimage.segmentation.slic) for more details)
