@@ -21,13 +21,13 @@ Pipeline: image -> convert to grayscale -> downscale -> Gaussian blur -> estimat
 
 ### a) Core Sampling Function `sleek_patchify`
 #### Parameters
-- `image` : input image to subsample
-- `patch_size` : size of resulting patches
-- `overlap` : note that while this value is exact for the regular grid sampling given as baseline, for the Sleek method the overlap value is approximative
+- `image` : 2D or 3D matrix, input image to subsample
+- `patch_size` : integer, size of resulting square patches
+- `overlap` : integer, approximate number of pixels common to two patches; note that while this value is exact for the regular grid sampling given as baseline, for the Sleek method the overlap value is approximative
 - `scale` : integer, downscaling factor for speeding up the execution
 ##### from SLIC (see [skimage.segmentation.slic](https://scikit-image.org/docs/dev/api/skimage.segmentation.html#skimage.segmentation.slic) for more details)
-  - `sigma` : wdth of Gaussian smoothing kernel for pre-processing 
-  - `compactness`: balances color proximity and space proximity (higher values give more weight to space proximity, making superpixel shapes more square)
+  - `sigma` : width of Gaussian smoothing kernel for pre-processing 
+  - `compactness`: float, between 0 and 1, balances color proximity and space proximity (higher values give more weight to space proximity, making superpixel shapes more square)
   - `min_size_factor` : proportion of the minimum superpixel size to be removed with respect to the supposed initial square size
   - `max_size_factor` : proportion of the maximum connected superpixel size
   - `slic_zero`, boolean flag, if *True* runs the zero-parameter mode of SLIC
