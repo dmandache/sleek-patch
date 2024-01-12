@@ -1,6 +1,6 @@
 from skimage import *
 from skimage.segmentation import slic, mark_boundaries, clear_border
-from skimage.util import img_as_float
+from skimage.util import img_as_float, img_as_uint
 from skimage.transform import rescale, resize
 from skimage.io import imsave, imread
 from skimage.color import rgb2gray
@@ -78,7 +78,7 @@ def grid_patchify(image, patch_size=256, overlap=0, remove_background=False, bac
         if background_is == 'dark':
             fg_ids = np.argwhere(mean_patches >= background_thresh).flatten()
         else:
-            fg_ids = np.argwhere(mean_patches > background_thresh).flatten()
+            fg_ids = np.argwhere(mean_patches < background_thresh).flatten()
         return [patches[index] for index in fg_ids], [centers[index] for index in fg_ids]
     else:
         return patches, centers
@@ -152,7 +152,12 @@ def _get_slic_segments(image, patch_size_slic=256, scale=8,
         n_segments = image.shape[0] * image.shape[1] // (patch_size_slic ** 2)
         
     # Downscale image
-    image_small = rescale(image, scale=1 / scale, multichannel=multichannel)
+    # old version
+    try:
+        image_small = rescale(image, scale=1 / scale, multichannel=multichannel)
+    # new version
+    except:
+        image_small = rescale(image, scale=1 / scale)
 
     # Downscale mask
     if mask is not None:
@@ -170,10 +175,20 @@ def _get_slic_segments(image, patch_size_slic=256, scale=8,
         imsave('image_small.png', image_small)
 
     # Run SLIC
-    segments_small = slic(img_as_float(image_small), mask=mask, 
-                          min_size_factor=min_size_factor, max_size_factor=max_size_factor, max_iter=30,
-                          n_segments=n_segments, multichannel=multichannel, slic_zero=slic_zero,
-                          sigma=sigma, compactness=compactness, enforce_connectivity=enforce_connectivity)
+    # old version
+    if "multichannel" in slic.__code__.co_varnames:
+        segments_small = slic(img_as_float(image_small), mask=mask, 
+                            min_size_factor=min_size_factor, max_size_factor=max_size_factor, max_iter=30,
+                            n_segments=n_segments, multichannel=multichannel, slic_zero=slic_zero,
+                            sigma=sigma, compactness=compactness, enforce_connectivity=enforce_connectivity)
+    # new version
+    else:
+        channel_axis = -1 if multichannel else None
+        segments_small = slic(img_as_float(image_small), mask=mask, 
+                          min_size_factor=min_size_factor, max_size_factor=max_size_factor, max_num_iter=30,
+                          n_segments=n_segments, slic_zero=slic_zero,
+                          sigma=sigma, compactness=compactness, enforce_connectivity=enforce_connectivity,
+                          channel_axis=channel_axis)
     # segments_small = clear_border(segments_small, buffer_size=buffer_size)
 
     if debug:
