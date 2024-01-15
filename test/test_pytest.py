@@ -10,7 +10,6 @@ def test_grid_patchify():
     # load test image
     image = shepp_logan_phantom() 
     image = np.array(image * 255).astype(np.uint8)
-    plt.figure()
     #plt.imsave("./test/test_image.png",image)
     #print(image.shape, image.dtype, image.mean(), image.min(), image.max())
     # regular grid patchify
