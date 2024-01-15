@@ -293,7 +293,7 @@ def _centers_to_patches(image, centers, patch_size=256):
     return patches, new_centers
 
 
-def draw_markers(markers_centers, patch_size, image, filename='markers.jpg', on_image=False, linewidth=12, color=None):
+def draw_markers(markers_centers, patch_size, image, filename=None, on_image=False, linewidth=12, color=None):
     """
 
     :param markers_centers:
@@ -332,12 +332,12 @@ def draw_markers(markers_centers, patch_size, image, filename='markers.jpg', on_
                     draw_rgb[rsqr + i, csqr + i] = rand_color
                 except:
                     continue
-    if True:
+    if filename is not None:
         imsave(filename, draw_rgb, quality=10)
     return draw_rgb
 
 
-def reconstruct_patches(centers, patches, image, filename='reconstructed_image.jpg', on_image=False):
+def reconstruct_patches(centers, patches, image, filename=None, on_image=False):
 
     draw_rgb = _get_canvas(image, on_image)
 
@@ -355,7 +355,7 @@ def reconstruct_patches(centers, patches, image, filename='reconstructed_image.j
         y0, y1 = max(0, c - offset), min(image.shape[1], c + offset)
 
         draw_rgb[x0:x1, y0:y1] = patches[i]
-    if True:
+    if filename is not None:
         imsave(filename, draw_rgb)
     return draw_rgb
 
