@@ -39,7 +39,7 @@ def grid_patchify(image, patch_size=256, overlap=0, remove_background=False, bac
     :param background_is:
     :return:
     """
-    img_h, img_w, _ = image.shape
+    img_h, img_w = image.shape[0], image.shape[1]
 
 
     def start_points(size, patch_size, overlap=0):
@@ -307,14 +307,14 @@ def draw_markers(markers_centers, patch_size, image, filename='markers.jpg', on_
     """
     def get_rand_color():
         return [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)]
-
-    print(image.dtype, image.min(), image.max())
+                    
+    print(image.ndim, image.dtype, image.min(), image.max())
 
     draw_rgb = _get_canvas(np.copy(image), on_image)
 
     for point in markers_centers:
         r, c = point
-        rcirc, ccirc = disk((r, c), radius=10)
+        rcirc, ccirc = disk((r, c), radius=linewidth*4)
         rsqr, csqr = polygon_perimeter(
             [r - patch_size // 2, r + patch_size // 2, r + patch_size // 2, r - patch_size // 2],
             [c - patch_size // 2, c - patch_size // 2, c + patch_size // 2, c + patch_size // 2],
@@ -367,5 +367,5 @@ def _get_canvas(image, on_image=False):
         else:
             draw_rgb = image
     else:
-        draw_rgb = np.zeros(shape=(image.shape[0], image.shape[1], 3), dtype=int)
+        draw_rgb = np.zeros(shape=(image.shape[0], image.shape[1], 3), dtype=np.uint8)
     return draw_rgb
